@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameTracker - Tu Biblioteca de Videojuegos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #fff, #a8edea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(168, 237, 234, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-bar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 0;
+            margin: 20px 0;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px 20px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        .game-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-completed {
+            background: rgba(46, 204, 113, 0.3);
+            border: 2px solid rgba(46, 204, 113, 0.6);
+            color: #2ecc71;
+        }
+
+        .status-playing {
+            background: rgba(52, 152, 219, 0.3);
+            border: 2px solid rgba(52, 152, 219, 0.6);
+            color: #3498db;
+        }
+
+        .status-pending {
+            background: rgba(241, 196, 15, 0.3);
+            border: 2px solid rgba(241, 196, 15, 0.6);
+            color: #f1c40f;
+        }
+
+        .hours-badge {
+            background: rgba(155, 89, 182, 0.3);
+            border: 1px solid rgba(155, 89, 182, 0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .sort-select {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .sort-select option {
+            background: #764ba2;
+            color: white;
+        }
+
+        .nav-buttons button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .nav-buttons button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-section {
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        .search-bar {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-image::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            to { transform: translateX(100%); }
+        }
+
+        .game-info {
+            padding: 20px;
+        }
+
+        .game-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .game-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .rating {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .game-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .game-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: rgba(52, 152, 219, 0.3);
+            color: #fff;
+            border: 1px solid rgba(52, 152, 219, 0.5);
+        }
+
+        .btn-edit:hover {
+            background: rgba(52, 152, 219, 0.5);
+        }
+
+        .btn-delete {
+            background: rgba(231, 76, 60, 0.3);
+            color: #fff;
+            border: 1px solid rgba(231, 76, 60, 0.5);
+        }
+
+        .btn-delete:hover {
+            background: rgba(231, 76, 60, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+            padding: 40px;
+            border-radius: 25px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 28px;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .reviews-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .review-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .review-author {
+            font-weight: bold;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .review-actions button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .floating-add-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .floating-add-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <div class="logo">🎮 GameTracker</div>
+                <div class="nav-buttons">
+                    <button onclick="showAllGames()">📚 Todos los Juegos</button>
+                    <button onclick="openAddGameModal()">➕ Agregar Juego</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Estadísticas -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalGames">0</div>
+                <div class="stat-label">Total de Juegos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalReviews">0</div>
+                <div class="stat-label">Reseñas Totales</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="avgRating">0.0</div>
+                <div class="stat-label">Calificación Promedio</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalPlatforms">0</div>
+                <div class="stat-label">Plataformas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="completedGames">0</div>
+                <div class="stat-label">Juegos Completados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalHours">0</div>
+                <div class="stat-label">Horas Jugadas</div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Buscar videojuegos..." oninput="searchGames()">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+
+        <!-- Filtros y Ordenamiento -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterByGenre('all')">🎮 Todos</button>
+            <button class="filter-btn" onclick="filterByGenre('Acción')">⚔️ Acción</button>
+            <button class="filter-btn" onclick="filterByGenre('RPG')">🗡️ RPG</button>
+            <button class="filter-btn" onclick="filterByGenre('Aventura')">🏃 Aventura</button>
+            <button class="filter-btn" onclick="filterByGenre('Deportes')">⚽ Deportes</button>
+            <button class="filter-btn" onclick="filterByStatus('completed')">✅ Completados</button>
+            <button class="filter-btn" onclick="filterByStatus('playing')">🎮 Jugando</button>
+            <button class="filter-btn" onclick="filterByStatus('pending')">⏳ Pendientes</button>
+            <select class="sort-select" onchange="sortGames(this.value)">
+                <option value="title">Ordenar por: Título</option>
+                <option value="rating">Ordenar por: Calificación</option>
+                <option value="year">Ordenar por: Año</option>
+                <option value="reviews">Ordenar por: Más Reseñas</option>
+            </select>
+        </div>
+
+        <div id="gamesGrid" class="games-grid"></div>
+    </div>
+
+    <!-- Modal para agregar/editar juego -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Agregar Nuevo Juego</h2>
+                <button class="close-btn" onclick="closeGameModal()">×</button>
+            </div>
+            <form id="gameForm" onsubmit="saveGame(event)">
+                <div class="form-group">
+                    <label>Título del Juego</label>
+                    <input type="text" id="gameTitle" required placeholder="Ej: The Legend of Zelda">
+                </div>
+                <div class="form-group">
+                    <label>Género</label>
+                    <input type="text" id="gameGenre" required placeholder="Ej: Aventura, RPG, Acción">
+                </div>
+                <div class="form-group">
+                    <label>Plataforma</label>
+                    <input type="text" id="gamePlatform" required placeholder="Ej: PlayStation, Xbox, PC">
+                </div>
+                <div class="form-group">
+                    <label>Año de Lanzamiento</label>
+                    <input type="number" id="gameYear" required placeholder="Ej: 2023">
+                </div>
+                <div class="form-group">
+                    <label>Calificación (0-10)</label>
+                    <input type="number" id="gameRating" min="0" max="10" step="0.1" required placeholder="Ej: 9.5">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="gameDescription" required placeholder="Describe el juego..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>URL de la Imagen (opcional)</label>
+                    <input type="url" id="gameImage" placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Estado del Juego</label>
+                    <select id="gameStatus" required>
+                        <option value="pending">⏳ Pendiente - Aún no lo has jugado</option>
+                        <option value="playing">🎮 Jugando - Lo estás jugando actualmente</option>
+                        <option value="completed">✅ Completado - Lo has terminado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Horas Jugadas</label>
+                    <input type="number" id="gameHours" min="0" step="0.5" value="0" placeholder="Ej: 25.5">
+                </div>
+                <button type="submit" class="submit-btn">Guardar Juego</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles y reseñas -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailTitle"></h2>
+                <button class="close-btn" onclick="closeDetailModal()">×</button>
+            </div>
+            <div id="detailContent"></div>
+            
+            <div class="reviews-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>Reseñas</h3>
+                    <button class="nav-buttons" style="margin: 0;" onclick="openAddReviewForm()">➕ Agregar Reseña</button>
+                </div>
+                
+                <div id="addReviewForm" style="display: none; margin-bottom: 20px;">
+                    <form onsubmit="saveReview(event)">
+                        <div class="form-group">
+                            <label>Tu Nombre</label>
+                            <input type="text" id="reviewAuthor" required placeholder="Tu nombre">
+                        </div>
+                        <div class="form-group">
+                            <label>Calificación (0-10)</label>
+                            <input type="number" id="reviewRating" min="0" max="10" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tu Reseña</label>
+                            <textarea id="reviewText" required placeholder="Escribe tu opinión sobre el juego..."></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Publicar Reseña</button>
+                    </form>
+                </div>
+                
+                <div id="reviewsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-add-btn" onclick="openAddGameModal()">+</button>
+
+    <script>
+        let games = [];
+        let currentEditingGame = null;
+        let currentViewingGame = null;
+        let currentEditingReview = null;
+        let currentFilter = 'all';
+        let currentSort = 'title';
+        let statusFilter = null;
+
+        // Cargar juegos de ejemplo al inicio
+        function initializeApp() {
+            games = [
+                {
+                    id: Date.now() - 1000,
+                    title: "The Last of Us Part II",
+                    genre: "Acción/Aventura",
+                    platform: "PlayStation",
+                    year: 2020,
+                    rating: 9.5,
+                    description: "Una historia épica de supervivencia y venganza en un mundo post-apocalíptico.",
+                    image: "",
+                    status: "completed",
+                    hoursPlayed: 28,
+                    reviews: [
+                        {
+                            id: 1,
+                            author: "María García",
+                            rating: 10,
+                            text: "Obra maestra absoluta. La narrativa es increíble y el gameplay impecable.",
+                            date: new Date().toLocaleDateString()
+                        }
+                    ]
+                },
+                {
+                    id: Date.now() - 2000,
+                    title: "Elden Ring",
+                    genre: "RPG/Acción",
+                    platform: "Multi-plataforma",
+                    year: 2022,
+                    rating: 9.8,
+                    description: "Un vasto mundo abierto lleno de misterios, desafíos épicos y libertad de exploración.",
+                    image: "",
+                    status: "playing",
+                    hoursPlayed: 45.5,
+                    reviews: []
+                },
+                {
+                    id: Date.now() - 3000,
+                    title: "FIFA 24",
+                    genre: "Deportes",
+                    platform: "Multi-plataforma",
+                    year: 2023,
+                    rating: 8.5,
+                    description: "La simulación de fútbol más realista con mejoras en física y animaciones.",
+                    image: "",
+                    status: "pending",
+                    hoursPlayed: 0,
+                    reviews: []
+                }
+            ];
+            updateStats();
+            renderGames();
+        }
+
+        function updateStats() {
+            document.getElementById('totalGames').textContent = games.length;
+            
+            const totalReviews = games.reduce((sum, game) => sum + game.reviews.length, 0);
+            document.getElementById('totalReviews').textContent = totalReviews;
+            
+            const avgRating = games.length > 0 
+                ? (games.reduce((sum, game) => sum + game.rating, 0) / games.length).toFixed(1)
+                : '0.0';
+            document.getElementById('avgRating').textContent = avgRating;
+            
+            const platforms = new Set(games.map(g => g.platform));
+            document.getElementById('totalPlatforms').textContent = platforms.size;
+            
+            const completedCount = games.filter(g => g.status === 'completed').length;
+            document.getElementById('completedGames').textContent = completedCount;
+            
+            const totalHours = games.reduce((sum, game) => sum + (game.hoursPlayed || 0), 0);
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1);
+        }
+
+        function getStatusInfo(status) {
+            const statusMap = {
+                'completed': { icon: '✅', text: 'Completado', class: 'status-completed' },
+                'playing': { icon: '🎮', text: 'Jugando', class: 'status-playing' },
+                'pending': { icon: '⏳', text: 'Pendiente', class: 'status-pending' }
+            };
+            return statusMap[status] || statusMap['pending'];
+        }
+
+        function filterByStatus(status) {
+            statusFilter = statusFilter === status ? null : status;
+            currentFilter = 'all';
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (statusFilter) {
+                event.target.classList.add('active');
+            } else {
+                document.querySelector('.filter-btn').classList.add('active');
+            }
+            
+            applyFiltersAndSort();
+        }
+
+        function filterByGenre(genre) {
+            currentFilter = genre;
+            statusFilter = null;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            applyFiltersAndSort();
+        }
+
+        function sortGames(sortBy) {
+            currentSort = sortBy;
+            applyFiltersAndSort();
+        }
+
+        function applyFiltersAndSort() {
+            let filtered = games;
+            
+            // Aplicar filtro de género
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(game => 
+                    game.genre.toLowerCase().includes(currentFilter.toLowerCase())
+                );
+            }
+            
+            // Aplicar filtro de estado
+            if (statusFilter) {
+                filtered = filtered.filter(game => game.status === statusFilter);
+            }
+            
+            // Aplicar búsqueda si hay texto
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            if (searchQuery) {
+                filtered = filtered.filter(game =>
+                    game.title.toLowerCase().includes(searchQuery) ||
+                    game.genre.toLowerCase().includes(searchQuery) ||
+                    game.platform.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            // Aplicar ordenamiento
+            filtered.sort((a, b) => {
+                switch(currentSort) {
+                    case 'rating':
+                        return b.rating - a.rating;
+                    case 'year':
+                        return b.year - a.year;
+                    case 'reviews':
+                        return b.reviews.length - a.reviews.length;
+                    case 'title':
+                    default:
+                        return a.title.localeCompare(b.title);
+                }
+            });
+            
+            renderGames(filtered);
+        }
+
+        function renderGames(gamesToRender = games) {
+            const grid = document.getElementById('gamesGrid');
+            
+            if (gamesToRender.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">🎮</div>
+                        <h2>No hay juegos aún</h2>
+                        <p>Comienza agregando tu primer videojuego a la colección</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = gamesToRender.map(game => {
+                const statusInfo = getStatusInfo(game.status);
+                return `
+                <div class="game-card" onclick="viewGameDetails(${game.id})">
+                    <div class="game-image" style="position: relative;">
+                        ${game.image ? `<img src="${game.image}" style="width:100%;height:100%;object-fit:cover;">` : '🎮'}
+                        <div class="game-status ${statusInfo.class}">
+                            ${statusInfo.icon} ${statusInfo.text}
+                        </div>
+                    </div>
+                    <div class="game-info">
+                        <div class="game-title">${game.title}</div>
+                        <div class="game-meta">
+                            <span>${game.genre}</span>
+                            <span class="rating">⭐ ${game.rating}</span>
+                        </div>
+                        <div class="game-meta">
+                            <span>📅 ${game.year}</span>
+                            <span>💬 ${game.reviews.length} reseñas</span>
+                        </div>
+                        <div class="game-meta">
+                            <span class="hours-badge">⏱️ ${game.hoursPlayed || 0}h jugadas</span>
+                        </div>
+                        <div class="game-actions" onclick="event.stopPropagation()">
+                            <button class="btn-edit" onclick="toggleGameStatus(${game.id})" style="flex: 1.5;">
+                                ${game.status === 'completed' ? '↩️ Desmarcar' : '✅ Marcar Completado'}
+                            </button>
+                            <button class="btn-edit" onclick="editGame(${game.id})">✏️</button>
+                            <button class="btn-delete" onclick="deleteGame(${game.id})">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function openAddGameModal() {
+            currentEditingGame = null;
+            document.getElementById('modalTitle').textContent = 'Agregar Nuevo Juego';
+            document.getElementById('gameForm').reset();
+            document.getElementById('gameModal').classList.add('active');
+        }
+
+        function closeGameModal() {
+            document.getElementById('gameModal').classList.remove('active');
+        }
+
+        function editGame(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+
+            currentEditingGame = game;
+            document.getElementById('modalTitle').textContent = 'Editar Juego';
+            document.getElementById('gameTitle').value = game.title;
+            document.getElementById('gameGenre').value = game.genre;
+            document.getElementById('gamePlatform').value = game.platform;
+            document.getElementById('gameYear').value = game.year;
+            document.getElementById('gameRating').value = game.rating;
+            document.getElementById('gameDescription').value = game.description;
+            document.getElementById('gameImage').value = game.image || '';
+            document.getElementById('gameStatus').value = game.status || 'pending';
+            document.getElementById('gameHours').value = game.hoursPlayed || 0;
+            document.getElementById('gameModal').classList.add('active');
+        }
+
+        function saveGame(event) {
+            event.preventDefault();
+
+            const gameData = {
+                title: document.getElementById('gameTitle').value,
+                genre: document.getElementById('gameGenre').value,
+                platform: document.getElementById('gamePlatform').value,
+                year: parseInt(document.getElementById('gameYear').value),
+                rating: parseFloat(document.getElementById('gameRating').value),
+                description: document.getElementById('gameDescription').value,
+                image: document.getElementById('gameImage').value,
+                status: document.getElementById('gameStatus').value,
+                hoursPlayed: parseFloat(document.getElementById('gameHours').value) || 0
+            };
+
+            if (currentEditingGame) {
+                // Editar juego existente
+                Object.assign(currentEditingGame, gameData);
+            } else {
+                // Agregar nuevo juego
+                games.push({
+                    id: Date.now(),
+                    ...gameData,
+                    reviews: []
+                });
+            }
+
+            updateStats();
+            applyFiltersAndSort();
+            closeGameModal();
+        }
+
+        function deleteGame(gameId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este juego?')) {
+                games = games.filter(g => g.id !== gameId);
+                updateStats();
+                applyFiltersAndSort();
+            }
+        }
+
+        function searchGames() {
+            applyFiltersAndSort();
+        }
+
+        function showAllGames() {
+            document.getElementById('searchInput').value = '';
+            currentFilter = 'all';
+            statusFilter = null;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.filter-btn').classList.add('active');
+            applyFiltersAndSort();
+        }
+
+        function viewGameDetails(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+
+            currentViewingGame = game;
+            document.getElementById('detailTitle').textContent = game.title;
+            document.getElementById('detailContent').innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <p style="margin-bottom: 10px;"><strong>Género:</strong> ${game.genre}</p>
+                    <p style="margin-bottom: 10px;"><strong>Plataforma:</strong> ${game.platform}</p>
+                    <p style="margin-bottom: 10px;"><strong>Año:</strong> ${game.year}</p>
+                    <p style="margin-bottom: 10px;"><strong>Calificación:</strong> ⭐ ${game.rating}/10</p>
+                    <p style="margin-bottom: 10px;"><strong>Estado:</strong> ${getStatusInfo(game.status).icon} ${getStatusInfo(game.status).text}</p>
+                    <p style="margin-bottom: 10px;"><strong>Horas Jugadas:</strong> ⏱️ ${game.hoursPlayed || 0} horas</p>
+                    <p style="margin-top: 15px;"><strong>Descripción:</strong></p>
+                    <p style="color: rgba(255,255,255,0.8); line-height: 1.6;">${game.description}</p>
+                </div>
+            `;
+            
+            renderReviews();
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+            document.getElementById('addReviewForm').style.display = 'none';
+        }
+
+        function openAddReviewForm() {
+            document.getElementById('addReviewForm').style.display = 'block';
+            document.getElementById('reviewAuthor').value = '';
+            document.getElementById('reviewRating').value = '';
+            document.getElementById('reviewText').value = '';
+            currentEditingReview = null;
+        }
+
+        function saveReview(event) {
+            event.preventDefault();
+
+            const reviewData = {
+                author: document.getElementById('reviewAuthor').value,
+                rating: parseFloat(document.getElementById('reviewRating').value),
+                text: document.getElementById('reviewText').value,
+                date: new Date().toLocaleDateString()
+            };
+
+            if (currentEditingReview) {
+                Object.assign(currentEditingReview, reviewData);
+            } else {
+                reviewData.id = Date.now();
+                currentViewingGame.reviews.push(reviewData);
+            }
+
+            updateStats();
+            document.getElementById('addReviewForm').style.display = 'none';
+            renderReviews();
+        }
+
+        function renderReviews() {
+            const reviewsList = document.getElementById('reviewsList');
+            const reviews = currentViewingGame.reviews;
+
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<p style="color: rgba(255,255,255,0.6); text-align: center;">No hay reseñas aún. ¡Sé el primero en opinar!</p>';
+                return;
+            }
+
+            reviewsList.innerHTML = reviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div>
+                            <div class="review-author">${review.author}</div>
+                            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">${review.date}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="rating" style="margin: 0;">⭐ ${review.rating}</span>
+                            <div class="review-actions">
+                                <button class="btn-edit" onclick="editReview(${review.id})">✏️</button>
+                                <button class="btn-delete" onclick="deleteReview(${review.id})">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.8); line-height: 1.6; margin-top: 10px;">${review.text}</p>
+                </div>
+            `).join('');
+        }
+
+        function editReview(reviewId) {
+            const review = currentViewingGame.reviews.find(r => r.id === reviewId);
+            if (!review) return;
+
+            currentEditingReview = review;
+            document.getElementById('reviewAuthor').value = review.author;
+            document.getElementById('reviewRating').value = review.rating;
+            document.getElementById('reviewText').value = review.text;
+            document.getElementById('addReviewForm').style.display = 'block';
+        }
+
+        function deleteReview(reviewId) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta reseña?')) {
+                currentViewingGame.reviews = currentViewingGame.reviews.filter(r => r.id !== reviewId);
+                updateStats();
+                renderReviews();
+            }
+        }
+
+        // Inicializar la aplicación
+        initializeApp();
+    </script>
+</body>
+</html>
